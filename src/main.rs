@@ -1,4 +1,4 @@
-use std::{process::ExitCode, thread};
+use std::{process::ExitCode, thread, time};
 use aes::{Aes128, cipher::{KeyInit, BlockDecrypt, BlockEncrypt}};
 use base64::Engine;
 use clap::{Arg, Command, ArgAction};
@@ -99,15 +99,26 @@ fn main() -> ExitCode {
 }
 
 fn maintain(ip: &String, mac: &String, key: &[u8], temp: &f32, cooling: bool, heating: bool) {
+  let mut last_command = time::SystemTime::now()-time::Duration::from_secs(300);
   loop {
     let (current_temp, status) = get_temp_power(ip, mac, &key).unwrap();
-    if ((current_temp+1.0 < *temp) && heating && !status) ||
-    ((current_temp-1.0 > *temp) && cooling && !status) {
-      println!("Turning AC ON!");
-      set_power(true, ip, mac, key);
+    if ((current_temp+2.0 < *temp) && heating && !status) ||
+    ((current_temp-2.0 > *temp) && cooling && !status) {
+      if time::SystemTime::now() > last_command+time::Duration::from_secs(310) {
+        println!("Turning AC ON!");
+        set_power(true, ip, mac, key);
+        last_command = time::SystemTime::now();
+      } else {
+        println!("Would've turned the AC ON, but the last action is less than 5min ago!");
+      }
     } else if status {
-      println!("Turning AC OFF!");
-      set_power(false, ip, mac, key);
+      if time::SystemTime::now() > last_command+time::Duration::from_secs(310) {
+        println!("Turning AC OFF!");
+        set_power(false, ip, mac, key);
+        last_command = time::SystemTime::now();
+      } else {
+        println!("Would've turned the AC OFF, but the last action is less than 5min ago!");
+      }
     } else {
       println!("Temperature is fine. Not sending anything.")
     }

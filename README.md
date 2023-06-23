@@ -21,6 +21,8 @@ Since this is just first commit code and untested, things are bound to change.
 
 Currently, the AC will only turn on if the room temperature derives for at least 2° from the target temperature. The `--cooling` and `--heating` flag will also make it possible to avoid wasting power on heating in the summer.
 
-## Acknowledgements
+___
+
+## **Acknowledgements**
 
 [tomikaa87/gree-remote](https://github.com/tomikaa87/gree-remote)
