@@ -99,12 +99,15 @@ fn main() -> ExitCode {
 }
 
 fn maintain(ip: &String, mac: &String, key: &[u8], temp: &f32, cooling: bool, heating: bool) {
-  let mut last_command = time::SystemTime::now()-time::Duration::from_secs(300);
+  let mut last_command = time::SystemTime::now()-time::Duration::from_secs(315);
   loop {
     let (current_temp, status) = get_temp_power(ip, mac, &key).unwrap();
-    if ((current_temp+2.0 < *temp) && heating && !status) ||
-    ((current_temp-2.0 > *temp) && cooling && !status) {
-      if time::SystemTime::now() > last_command+time::Duration::from_secs(310) {
+    if ((current_temp+1.0 < *temp) && heating) ||
+    ((current_temp-1.0 > *temp) && cooling) {
+      if status {
+        println!("AC is already TURNED ON.");
+      }
+      else if time::SystemTime::now() > last_command+time::Duration::from_secs(310) {
         println!("Turning AC ON!");
         set_power(true, ip, mac, key);
         last_command = time::SystemTime::now();
