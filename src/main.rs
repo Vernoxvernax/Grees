@@ -102,8 +102,8 @@ fn maintain(ip: &String, mac: &String, key: &[u8], temp: &f32, cooling: bool, he
   let mut last_command = time::SystemTime::now()-time::Duration::from_secs(315);
   loop {
     let (current_temp, status) = get_temp_power(ip, mac, &key).unwrap();
-    if ((current_temp+1.0 < *temp) && heating) ||
-    ((current_temp-1.0 > *temp) && cooling) {
+    if ((current_temp+1.0 <= *temp) && heating) ||
+    ((current_temp-1.0 >= *temp) && cooling) {
       if status {
         println!("AC is already TURNED ON.");
       }
